@@ -1,7 +1,7 @@
 
 # `@react-native-community/netinfo`
 
-[![CircleCI Status](https://img.shields.io/circleci/project/github/react-native-community/react-native-netinfo/master.svg)](https://circleci.com/gh/react-native-community/workflows/react-native-netinfo/tree/master) ![Supports Android, iOS, and Windows](https://img.shields.io/badge/platforms-android%20|%20ios%20|%20windows-lightgrey.svg) ![MIT License](https://img.shields.io/npm/l/@react-native-community/netinfo.svg) [![Lean Core Extracted](https://img.shields.io/badge/Lean%20Core-Extracted-brightgreen.svg)](https://github.com/facebook/react-native/issues/23313)
+[![CircleCI Status](https://img.shields.io/circleci/project/github/react-native-community/react-native-netinfo/master.svg)](https://circleci.com/gh/react-native-community/workflows/react-native-netinfo/tree/master) ![Supports Android, iOS, and Windows](https://img.shields.io/badge/platforms-android%20|%20ios%20|%20windows-lightgrey.svg) ![MIT License](https://img.shields.io/npm/l/@react-native-community/netinfo.svg)
 
 React Native Network Info API for Android, iOS & Windows. It allows you to get information on:
 
@@ -101,16 +101,6 @@ protected List<ReactPackage> getPackages() {
 
 </details>
 
-## React Native Compatibility
-To use this library you need to ensure you are using the correct version of React Native. If you are using a version of React Native that is lower than `0.57` you will need to upgrade that before attempting to use this library.
-
-| `@react-native-community/netinfo` version | Required React Native Version                                                     |
-| ----------------------------------------- | --------------------------------------------------------------------------------- |
-| `4.x.x`                                   | `>= 0.60` or `>= 0.59` if using [Jetifier](https://github.com/mikehardy/jetifier) |
-| `3.x.x`                                   | `>= 0.59`                                                                         |
-| `2.x.x`                                   | `>= 0.57`                                                                         |
-| `1.x.x`                                   | `>= 0.57`                                                                         |
-
 ## Migrating from the core `react-native` module
 This module was created when the NetInfo was split out from the core of React Native. To migrate to this module you need to follow the installation instructions above and then change you imports from:
 
@@ -170,12 +160,11 @@ unsubscribe();
 #### `NetInfoState`
 Describes the current state of the network. It is an object with these properties:
 
-| Property              | Type                                    | Description                                                                                        |
-| --------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `type`                | [`NetInfoStateType`](#netinfostatetype) | The type of the current connection.                                                                |
-| `isConnected`         | `boolean`                               | If there is an active network connection. Note that this DOES NOT mean that internet is reachable. |
-| `isInternetReachable` | `boolean`                               | If the internet is reachable with the currently active network connection.                         |
-| `details`             |                                         | The value depends on the `type` value. See below.                                                  |
+| Property        | Type                                             | Description                                                                                        |
+| --------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `type`          | [`NetInfoStateType`](#netinfostatetype)          | The type of the current connection.                                                                |
+| `isConnected`   | `boolean`                                        | If there is an active network connection. Note that this DOES NOT mean that internet is reachable. |
+| `details`       |                                                  | The value depends on the `type` value. See below.                                                  |
 
 The `details` value depends on the `type` value.
 
@@ -273,21 +262,13 @@ const YourComplement = () => {
   return (
     <View>
       <Text>Type: {netInfo.type}</Text>
-      <Text>Is Connected? {netInfo.isConnected.toString()}</Text>
+      <Text>Is Connected? {netInfo.isConnected}</Text>
     </View>
   );
 };
 ```
 
 ## Troubleshooting
-
-### Errors when building on Android
-
-This library was migrated from using the support library to AndroidX in version `4.0.0`. All of your depenencies must be using either the support library *or* AndroidX. Using a mixture of the two is not possible.
-
-From React Native 0.60 AndroidX is used by default.
-
-If you need to either convert this library back to the support library (to use an older React Native version) or convert other libraries forward to use AndroidX (if they have not been updated yet), you can use the [Jetifier](https://github.com/mikehardy/jetifier) tool.
 
 ### Errors while running Jest tests
 
@@ -303,7 +284,7 @@ You should then add the following to your Jest setup file to mock the NetInfo Na
 import { NativeModules } from 'react-native';
 
 NativeModules.RNCNetInfo = {
-  getCurrentState: jest.fn(() => Promise.resolve()),
+  getCurrentState: jest.fn(),
   addListener: jest.fn(),
   removeListeners: jest.fn()
 };

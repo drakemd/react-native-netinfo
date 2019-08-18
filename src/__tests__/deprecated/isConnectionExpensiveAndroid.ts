@@ -17,16 +17,17 @@ import NetInfo from '../../index';
 import NativeInterface from '../../internal/nativeInterface';
 import {NetInfoStateType} from '../../internal/types';
 
-const DEVICE_CONNECTIVITY_EVENT = 'netInfo.networkStatusDidChange';
+type JestMockNativeInterface = jest.Mocked<typeof NativeInterface>;
+/// @ts-ignore
+const MockNativeInterface: JestMockNativeInterface = NativeInterface;
 
 describe('Deprecated', () => {
   describe('isConnectionExpensive', () => {
     describe('Android', () => {
       it('should pass the value through when false', () => {
-        NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
+        MockNativeInterface.getCurrentState.mockResolvedValue({
           type: NetInfoStateType.wifi,
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: false,
           },
@@ -35,10 +36,9 @@ describe('Deprecated', () => {
       });
 
       it('should pass the value through when true', () => {
-        NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
+        MockNativeInterface.getCurrentState.mockResolvedValue({
           type: NetInfoStateType.wifi,
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
           },

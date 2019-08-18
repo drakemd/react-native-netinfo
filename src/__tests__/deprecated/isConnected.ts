@@ -8,22 +8,41 @@
  */
 
 import NetInfo from '../../index';
+import Subscriptions from '../../internal/subscriptions';
+import DeprecatedSubscriptions from '../../internal/deprecatedSubscriptions';
 import NativeInterface from '../../internal/nativeInterface';
 import {
   NetInfoStateType,
   NetInfoCellularGeneration,
 } from '../../internal/types';
 
+type JestMockNativeInterface = jest.Mocked<typeof NativeInterface>;
+/// @ts-ignore
+const MockNativeInterface: JestMockNativeInterface = NativeInterface;
+
 const DEVICE_CONNECTIVITY_EVENT = 'netInfo.networkStatusDidChange';
 
 describe('Deprecated', () => {
   describe('isConnected', () => {
+    beforeEach(() => {
+      Subscriptions.clear();
+      DeprecatedSubscriptions.clear();
+
+      MockNativeInterface.getCurrentState.mockResolvedValue({
+        type: NetInfoStateType.cellular,
+        isConnected: true,
+        details: {
+          isConnectionExpensive: true,
+          cellularGeneration: NetInfoCellularGeneration['3g'],
+        },
+      });
+    });
+
     describe('fetch', () => {
       it('should resolve to true when the native module returns a connected state', () => {
-        NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
+        MockNativeInterface.getCurrentState.mockResolvedValue({
           type: NetInfoStateType.cellular,
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
             cellularGeneration: NetInfoCellularGeneration['3g'],
@@ -34,14 +53,72 @@ describe('Deprecated', () => {
       });
 
       it('should resolve to true when the native module returns a not connected state', () => {
-        NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
+        MockNativeInterface.getCurrentState.mockResolvedValue({
           type: NetInfoStateType.unknown,
           isConnected: false,
-          isInternetReachable: false,
           details: null,
         });
 
         return expect(NetInfo.isConnected.fetch()).resolves.toBe(false);
+      });
+
+      it('should pass on errors through the promise chain', () => {
+        const expectedError = new Error('A test error');
+
+        MockNativeInterface.getCurrentState.mockRejectedValue(expectedError);
+
+        return expect(NetInfo.getConnectionInfo()).rejects.toBe(expectedError);
+      });
+    });
+
+    describe('Event listener management', () => {
+      it('should add the listener to the native module when passing the correct event name', () => {
+        NetInfo.isConnected.addEventListener('connectionChange', jest.fn());
+        expect(MockNativeInterface.addListener).toBeCalledWith(
+          DEVICE_CONNECTIVITY_EVENT,
+        );
+      });
+
+      it('should do nothing when passing the wrong event name', () => {
+        // $FlowExpectedError We are testing passing in the wrong name
+        NetInfo.isConnected.addEventListener('WRONGNAME', jest.fn());
+        expect(MockNativeInterface.addListener).not.toBeCalled();
+      });
+
+      it('should remove the listener from the native module when calling removeEventListener', () => {
+        const listener = jest.fn();
+        NetInfo.isConnected.addEventListener('connectionChange', listener);
+        NetInfo.isConnected.removeEventListener('connectionChange', listener);
+        expect(MockNativeInterface.removeListeners).toBeCalled();
+      });
+
+      it('should remove the listener from the native module when calling remove on the returned subscription', () => {
+        const listener = jest.fn();
+        const subscription = NetInfo.isConnected.addEventListener(
+          'connectionChange',
+          listener,
+        );
+        subscription.remove();
+        expect(MockNativeInterface.removeListeners).toBeCalled();
+      });
+
+      it('should not remove the listener from the native module when calling remove on the returned subscription if there is another subscription', () => {
+        const listener1 = jest.fn();
+        const listener2 = jest.fn();
+        const subscription1 = NetInfo.isConnected.addEventListener(
+          'connectionChange',
+          listener1,
+        );
+        const subscription2 = NetInfo.isConnected.addEventListener(
+          'connectionChange',
+          listener2,
+        );
+
+        subscription1.remove();
+        expect(MockNativeInterface.removeListeners).not.toBeCalled();
+
+        subscription2.remove();
+        expect(MockNativeInterface.removeListeners).toBeCalled();
       });
     });
 
@@ -60,7 +137,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'cellular',
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
             cellularGeneration: '4g',
@@ -77,7 +153,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'cellular',
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
             cellularGeneration: '3g',
@@ -86,7 +161,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'wifi',
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: false,
           },
@@ -105,7 +179,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'cellular',
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
             cellularGeneration: '2g',
@@ -127,7 +200,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'cellular',
           isConnected: true,
-          isInternetReachable: true,
           details: {
             isConnectionExpensive: true,
             cellularGeneration: '3g',
@@ -152,7 +224,6 @@ describe('Deprecated', () => {
         NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
           type: 'unknown',
           isConnected: false,
-          isInternetReachable: false,
           details: null,
         });
 

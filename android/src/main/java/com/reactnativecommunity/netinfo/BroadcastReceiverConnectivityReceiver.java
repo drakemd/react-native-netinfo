@@ -14,8 +14,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.reactnativecommunity.netinfo.types.CellularGeneration;
-import com.reactnativecommunity.netinfo.types.ConnectionType;
 
 /**
  * This gets the connectivity status using a BroadcastReceiver. This method was deprecated on
@@ -53,48 +51,43 @@ public class BroadcastReceiverConnectivityReceiver extends ConnectivityReceiver 
 
     @SuppressLint("MissingPermission")
     private void updateAndSendConnectionType() {
-        ConnectionType connectionType = ConnectionType.UNKNOWN;
-        CellularGeneration cellularGeneration = null;
-        boolean isInternetReachable = false;
+        String connectionType = CONNECTION_TYPE_OTHER;
+        String cellularGeneration = null;
 
         try {
             NetworkInfo networkInfo = getConnectivityManager().getActiveNetworkInfo();
             if (networkInfo == null || !networkInfo.isConnected()) {
-                connectionType = ConnectionType.NONE;
+                connectionType = CONNECTION_TYPE_NONE;
             } else {
-                // Check if the internet is reachable
-                isInternetReachable = networkInfo.isConnected();
-
-                // Get the connection type
                 int networkType = networkInfo.getType();
                 switch (networkType) {
                     case ConnectivityManager.TYPE_BLUETOOTH:
-                        connectionType = ConnectionType.BLUETOOTH;
+                        connectionType = CONNECTION_TYPE_BLUETOOTH;
                         break;
                     case ConnectivityManager.TYPE_ETHERNET:
-                        connectionType = ConnectionType.ETHERNET;
+                        connectionType = CONNECTION_TYPE_ETHERNET;
                         break;
                     case ConnectivityManager.TYPE_MOBILE:
                     case ConnectivityManager.TYPE_MOBILE_DUN:
-                        connectionType = ConnectionType.CELLULAR;
-                        cellularGeneration = CellularGeneration.fromNetworkInfo(networkInfo);
+                        connectionType = CONNECTION_TYPE_CELLULAR;
+                        cellularGeneration = getEffectiveConnectionType(networkInfo);
                         break;
                     case ConnectivityManager.TYPE_WIFI:
-                        connectionType = ConnectionType.WIFI;
+                        connectionType = CONNECTION_TYPE_WIFI;
                         break;
                     case ConnectivityManager.TYPE_WIMAX:
-                        connectionType = ConnectionType.WIMAX;
+                        connectionType = CONNECTION_TYPE_WIMAX;
                         break;
                     case ConnectivityManager.TYPE_VPN:
-                        connectionType = ConnectionType.VPN;
-                        break;
+                        connectionType = CONNECTION_TYPE_VPN;
                 }
             }
         } catch (SecurityException e) {
-            connectionType = ConnectionType.UNKNOWN;
+            setNoNetworkPermission();
+            connectionType = CONNECTION_TYPE_UNKNOWN;
         }
 
-        updateConnectivity(connectionType, cellularGeneration, isInternetReachable);
+        updateConnectivity(connectionType, cellularGeneration);
     }
 
     /**

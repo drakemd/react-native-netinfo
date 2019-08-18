@@ -35,7 +35,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.none,
         isConnected: false,
-        isInternetReachable: false,
         details: null,
       },
       isConnected: false,
@@ -50,7 +49,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.unknown,
         isConnected: false,
-        isInternetReachable: false,
         details: null,
       },
       isConnected: false,
@@ -65,7 +63,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.wifi,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },
@@ -82,7 +79,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.cellular,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: NetInfoCellularGeneration['3g'],
@@ -100,7 +96,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.cellular,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: null,
@@ -118,7 +113,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.bluetooth,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },
@@ -135,7 +129,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.ethernet,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },
@@ -152,7 +145,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.wimax,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },
@@ -169,7 +161,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.vpn,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },
@@ -186,7 +177,6 @@ describe('Deprecated utils', () => {
       input: {
         type: NetInfoStateType.other,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: false,
         },

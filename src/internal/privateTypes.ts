@@ -9,18 +9,8 @@
 
 import {NetInfoState} from './types';
 
-// Certain properties are optional when sent by the native module and are handled by the JS code
-export type NetInfoNativeModuleState = Pick<
-  NetInfoState,
-  Exclude<keyof NetInfoState, 'isInternetReachable'>
-> & {isInternetReachable?: boolean};
-
 export interface NetInfoNativeModule {
-  getCurrentState: () => Promise<NetInfoNativeModuleState>;
+  getCurrentState: () => Promise<NetInfoState>;
   addListener: (type: string, handler: Function) => void;
   removeListeners: (type: string, handler: Function) => void;
 }
-
-export type NetInfoInternetReachabilityChangeListener = (
-  isInternetReachable: boolean | null,
-) => void;

@@ -9,11 +9,30 @@
 
 import NetInfo from '../index';
 import NativeInterface from '../internal/nativeInterface';
+import Subscriptions from '../internal/subscriptions';
+import {NetInfoStateType, NetInfoCellularGeneration} from '../internal/types';
+
+type JestMockNativeInterface = jest.Mocked<typeof NativeInterface>;
+/// @ts-ignore
+const MockNativeInterface: JestMockNativeInterface = NativeInterface;
 
 const DEVICE_CONNECTIVITY_EVENT = 'netInfo.networkStatusDidChange';
 
 describe('react-native-community/netinfo', () => {
   describe('Event listener callbacks', () => {
+    beforeEach(() => {
+      Subscriptions.clear();
+
+      MockNativeInterface.getCurrentState.mockResolvedValue({
+        type: NetInfoStateType.cellular,
+        isConnected: true,
+        details: {
+          isConnectionExpensive: true,
+          cellularGeneration: NetInfoCellularGeneration['3g'],
+        },
+      });
+    });
+
     it('should call the listener on listening', done => {
       const listener = jest.fn();
       NetInfo.addEventListener(listener);
@@ -46,7 +65,6 @@ describe('react-native-community/netinfo', () => {
       const expectedConnectionInfo = {
         type: expectedConnectionType,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: expectedEffectiveConnectionType,
@@ -68,7 +86,6 @@ describe('react-native-community/netinfo', () => {
       NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
         type: 'cellular',
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: '3g',
@@ -77,7 +94,6 @@ describe('react-native-community/netinfo', () => {
       NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
         type: 'wifi',
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: 'unknown',
@@ -100,7 +116,6 @@ describe('react-native-community/netinfo', () => {
       const expectedConnectionInfo = {
         type: expectedConnectionType,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: expectedEffectiveConnectionType,
@@ -127,7 +142,6 @@ describe('react-native-community/netinfo', () => {
       NativeInterface.eventEmitter.emit(DEVICE_CONNECTIVITY_EVENT, {
         type: 'cellular',
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: '3g',
@@ -154,7 +168,6 @@ describe('react-native-community/netinfo', () => {
       const expectedConnectionInfo = {
         type: expectedConnectionType,
         isConnected: true,
-        isInternetReachable: true,
         details: {
           isConnectionExpensive: true,
           cellularGeneration: expectedEffectiveConnectionType,
